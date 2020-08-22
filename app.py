@@ -12,14 +12,23 @@ import logging
 from logging import Formatter, FileHandler
 from flask_wtf import Form
 from forms import *
+from flask_migrate import Migrate
+import os
+
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
 
 app = Flask(__name__)
 moment = Moment(app)
-app.config.from_object('config')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://pavel@localhost:5432/fyyurapp'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+SECRET_KEY = os.urandom(32)
+app.config['SECRET_KEY'] = SECRET_KEY
+# app.config.from_object('config')
 db = SQLAlchemy(app)
+
+migrate = Migrate(app, db)
 
 # TODO: connect to a local postgresql database
 

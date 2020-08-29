@@ -1,7 +1,19 @@
 from datetime import datetime
 from flask_wtf import Form
-from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField
-from wtforms.validators import DataRequired, AnyOf, URL
+from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField
+from wtforms.validators import InputRequired, AnyOf, URL, ValidationError
+import re
+
+
+def facebook_validate(form, field):
+    matches = re.findall(r'www.facebook.com/.+$', field.data)
+    if not matches:
+        raise ValidationError('Not a valid Facebook link')
+
+def phone_validate(form, field):
+    matches = re.findall(r'^\d{3}-\d{3}-\d{4}$', field.data)
+    if not matches:
+        raise ValidationError('Not a valid phone number')
 
 genres_choices = [
             ('Alternative', 'Alternative'),
@@ -81,78 +93,87 @@ states_choices = [
 
 class ShowForm(Form):
     artist_id = StringField(
-        'artist_id'
+        'artist_id', validators=[InputRequired()]
     )
     venue_id = StringField(
-        'venue_id'
+        'venue_id', validators=[InputRequired()],
     )
     start_time = DateTimeField(
         'start_time',
-        validators=[DataRequired()],
+        validators=[InputRequired()],
         default= datetime.today()
     )
 
 class VenueForm(Form):
     name = StringField(
-        'name', validators=[DataRequired()]
+        'name', validators=[InputRequired("Name can't be empty")]
     )
     city = StringField(
-        'city', validators=[DataRequired()]
+        'city', validators=[InputRequired("City can't be empty")]
     )
     state = SelectField(
-        'state', validators=[DataRequired()],
+        'state', validators=[InputRequired("State can't be empty")],
         choices=states_choices
     )
     address = StringField(
-        'address', validators=[DataRequired()]
+        'address', validators=[InputRequired("Address can't be empty")]
     )
     phone = StringField(
-        'phone'
+        'phone', validators=[InputRequired("Phone can't be empty"), phone_validate]
     )
     image_link = StringField(
-        'image_link', validators=[URL()]
+        'image_link', validators=[InputRequired("Image link should be provided"), URL()]
     )
     genres = SelectMultipleField(
-        # TODO implement enum restriction
-        'genres', validators=[DataRequired()],
+        'genres', validators=[InputRequired("Genres can't be empty")],
         choices=genres_choices
     )
     facebook_link = StringField(
-        'facebook_link', validators=[URL()]
+        'facebook_link', validators=[URL(), facebook_validate]
     )
     website = StringField(
         'website', validators=[URL()]
     )
+    seeking_talent = BooleanField(
+        'seeking_talent'
+    )
+    seeking_description = StringField(
+        'seeking_description'
+    )
+
     
 
 class ArtistForm(Form):
     name = StringField(
-        'name', validators=[DataRequired()]
+        'name', validators=[InputRequired("Name can't be empty")]
     )
     city = StringField(
-        'city', validators=[DataRequired()]
+        'city', validators=[InputRequired("City can't be empty")]
     )
     state = SelectField(
-        'state', validators=[DataRequired()],
+        'state', validators=[InputRequired("State can't be empty")],
         choices=states_choices
     )
     phone = StringField(
-        'phone'
+        'phone', validators=[InputRequired("Phone can't be empty"), phone_validate]
     )
     image_link = StringField(
-        'image_link', validators=[URL()]
+        'image_link', validators=[InputRequired("Image link should be provided"), URL()]
+    )
+    genres = SelectMultipleField(
+        # TODO implement enum restriction
+        'genres', validators=[InputRequired("Genres can't be empty")],
+        choices=genres_choices
+    )
+    facebook_link = StringField(
+        'facebook_link', validators=[URL(), facebook_validate]
     )
     website = StringField(
         'website', validators=[URL()]
     )
-    genres = SelectMultipleField(
-        # TODO implement enum restriction
-        'genres', validators=[DataRequired()],
-        choices=genres_choices
+    seeking_venue = BooleanField(
+        'seeking_venue'
     )
-    facebook_link = StringField(
-        # TODO implement enum restriction
-        'facebook_link', validators=[URL()]
+    seeking_description = StringField(
+        'seeking_description'
     )
-
-# TODO IMPLEMENT NEW ARTIST FORM AND NEW SHOW FORM

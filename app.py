@@ -30,7 +30,9 @@ def format_datetime(value, format='medium'):
         format="EE MM, dd, y h:mma"
     return babel.dates.format_datetime(date, format)
 
+
 app.jinja_env.filters['datetime'] = format_datetime
+
 
 #----------------------------------------------------------------------------#
 # Controllers.
@@ -51,7 +53,6 @@ def venues():
     map = {}
     result_data = []
     for venue in venues:
-        # TODO num of upcoming shows
         shows_avail = Show.query.filter_by(venue_id=venue.id)
         num_upcoming_shows = shows_avail.filter(Show.start_time > dt.now()).count()
         venue_object = {"id": venue.id, "name": venue.name, "num_upcoming_shows": num_upcoming_shows}
@@ -87,7 +88,6 @@ def search_venues():
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
     # shows the venue page with the given venue_id
-    # TODO shows
     venue = Venue.query.filter_by(id=venue_id).one_or_none()
     shows = Show.query.filter_by(venue_id=venue.id).all()
     past_shows = []
@@ -118,6 +118,8 @@ def show_venue(venue_id):
         "upcoming_shows": upcoming_shows,
         "past_shows_count": len(past_shows),
         "upcoming_shows_count": len(upcoming_shows),
+        "seeking_talent": venue.seeking_talent,
+        "seeking_description": venue.seeking_description
     }
     return render_template('pages/show_venue.html', venue=venue_data, form=VenueForm())
 
@@ -139,16 +141,20 @@ def create_venue_submission():
         flash('Invalid input data')
         return render_template('forms/new_venue.html', form=form)
     try: 
-        name = request.form['name']
-        city = request.form['city']
-        state = request.form['state']
-        address = request.form['address']
-        phone = request.form['phone']
-        genres = request.form.getlist('genres')
-        facebook_link = request.form['facebook_link']
-        image_link = request.form['image_link']
-        website = request.form['website']
-        venue = Venue(name=name, city=city, state=state, address=address, phone=phone, genres=genres, image_link=image_link, facebook_link=facebook_link, website=website)
+        name = form.name.data
+        city = form.city.data
+        state = form.state.data
+        phone = form.phone.data
+        genres = form.genres.data
+        facebook_link = form.facebook_link.data
+        image_link = form.image_link.data
+        website = form.website.data
+        address = form.address.data
+        seeking_talent = form.seeking_talent.data
+        seeking_description = form.seeking_description.data
+        venue = Venue(name=name, city=city, state=state, address=address, phone=phone, genres=genres, image_link=image_link, 
+                facebook_link=facebook_link, website=website,
+                seeking_talent=seeking_talent, seeking_description=seeking_description)
         db.session.add(venue)
         db.session.commit()
     except:
@@ -226,6 +232,8 @@ def show_artist(artist_id):
         "upcoming_shows": upcoming_shows,
         "past_shows_count": len(past_shows),
         "upcoming_shows_count": len(upcoming_shows),
+        "seeking_venue": artist.seeking_venue,
+        "seeking_description": artist.seeking_description
     }
     return render_template('pages/show_artist.html', artist=artist_data, form=ArtistForm())
 
@@ -235,14 +243,24 @@ def show_artist(artist_id):
 def edit_artist(artist_id):
     form = ArtistForm()
     artist = Artist.query.filter_by(id=artist_id).one_or_none()
-    form.name.data = artist.name
-    form.city.data = artist.city
-    form.state.data = artist.state
-    form.phone.data = artist.phone
-    form.image_link.data = artist.image_link
-    form.website.data = artist.website
-    form.genres.data = artist.genres
-    form.facebook_link.data = artist.facebook_link
+    if artist.city is not None:
+        form.city.data = artist.city
+    if  artist.state is not None:
+        form.state.data = artist.state
+    if artist.phone is not None:
+        form.phone.data = artist.phone
+    if artist.image_link is not None:
+        form.image_link.data = artist.image_link
+    if artist.website is not None:
+        form.website.data = artist.website
+    if artist.genres is not None:
+        form.genres.data = artist.genres
+    if artist.facebook_link is not None:
+        form.facebook_link.data = artist.facebook_link
+    if artist.seeking_venue is not None:
+        form.seeking_venue.data = artist.seeking_venue
+    if artist.seeking_description is not None:
+        form.seeking_description.data = artist.seeking_description
 
     return render_template('forms/edit_artist.html', form=form, artist=artist)
 
@@ -255,14 +273,16 @@ def edit_artist_submission(artist_id):
         return redirect(url_for('edit_artist', artist_id=artist_id))
     try:
         selectedArtist = Artist.query.get(artist_id)
-        selectedArtist.name = request.form['name']
-        selectedArtist.city = request.form['city']
-        selectedArtist.state = request.form['state']
-        selectedArtist.phone = request.form['phone']
-        selectedArtist.genres = request.form.getlist('genres')
-        selectedArtist.facebook_link = request.form['facebook_link']
-        selectedArtist.image_link = request.form['image_link']
-        selectedArtist.website = request.form['website']
+        selectedArtist.name = form.name.data
+        selectedArtist.city = form.city.data
+        selectedArtist.state = form.state.data
+        selectedArtist.phone = form.phone.data
+        selectedArtist.genres = form.genres.data
+        selectedArtist.facebook_link = form.facebook_link.data
+        selectedArtist.image_link = form.image_link.data
+        selectedArtist.website = form.website.data
+        selectedArtist.seeking_venue = form.seeking_venue.data
+        selectedArtist.seeking_description = form.seeking_description.data
         db.session.commit()
     except:
         db.session.rollback()
@@ -281,14 +301,26 @@ def edit_venue(venue_id):
     form = VenueForm()
     venue = Venue.query.filter_by(id=venue_id).one_or_none()
     form.name.data = venue.name
-    form.city.data = venue.city
-    form.state.data = venue.state
-    form.phone.data = venue.phone
-    form.image_link.data = venue.image_link
-    form.website.data = venue.website
-    form.genres.data = venue.genres
-    form.facebook_link.data = venue.facebook_link
-    form.address.data = venue.address
+    if venue.city is not None:
+        form.city.data = venue.city
+    if  venue.state is not None:
+        form.state.data = venue.state
+    if venue.phone is not None:
+        form.phone.data = venue.phone
+    if venue.image_link is not None:
+        form.image_link.data = venue.image_link
+    if venue.website is not None:
+        form.website.data = venue.website
+    if venue.genres is not None:
+        form.genres.data = venue.genres
+    if venue.facebook_link is not None:
+        form.facebook_link.data = venue.facebook_link
+    if venue.address is not None:
+        form.address.data = venue.address
+    if venue.seeking_talent is not None:
+        form.seeking_talent.data = venue.seeking_talent
+    if venue.seeking_description is not None:
+        form.seeking_description.data = venue.seeking_description
 
     return render_template('forms/edit_venue.html', form=form, venue=venue)
 
@@ -301,15 +333,17 @@ def edit_venue_submission(venue_id):
         return redirect(url_for('edit_venue', venue_id=venue_id))
     try:
         selectedVenue = Venue.query.get(venue_id)
-        selectedVenue.name = request.form['name']
-        selectedVenue.city = request.form['city']
-        selectedVenue.state = request.form['state']
-        selectedVenue.phone = request.form['phone']
-        selectedVenue.genres = request.form.getlist('genres')
-        selectedVenue.facebook_link = request.form['facebook_link']
-        selectedVenue.image_link = request.form['image_link']
-        selectedVenue.website = request.form['website']
-        selectedVenue.address = request.form['address']
+        selectedVenue.name = form.name.data
+        selectedVenue.city = form.city.data
+        selectedVenue.state = form.state.data
+        selectedVenue.phone = form.phone.data
+        selectedVenue.genres = form.genres.data
+        selectedVenue.facebook_link = form.facebook_link.data
+        selectedVenue.image_link = form.image_link.data
+        selectedVenue.website = form.website.data
+        selectedVenue.address = form.address.data
+        selectedVenue.seeking_talent = form.seeking_talent.data
+        selectedVenue.seeking_description = form.seeking_description.data
         db.session.commit()
     except:
         db.session.rollback()
@@ -339,15 +373,17 @@ def create_artist_submission():
         flash('Invalid input data')
         return render_template('forms/new_artist.html', form=form)
     try: 
-        name = request.form['name']
-        city = request.form['city']
-        state = request.form['state']
-        phone = request.form['phone']
-        genres = request.form.getlist('genres')
-        facebook_link = request.form['facebook_link']
-        image_link = request.form['image_link']
-        website = request.form['website']
-        artist = Artist(name=name, city=city, state=state, phone=phone, genres=genres, image_link=image_link, facebook_link=facebook_link, website=website)
+        name = form.name.data
+        city = form.city.data
+        state = form.state.data
+        phone = form.phone.data
+        genres = form.genres.data
+        facebook_link = form.facebook_link.data
+        image_link = form.image_link.data
+        website = form.website.data
+        seeking_venue = form.seeking_venue.data
+        seeking_description = form.seeking_description.data
+        artist = Artist(name=name, city=city, state=state, phone=phone, genres=genres, image_link=image_link, facebook_link=facebook_link, website=website, seeking_venue=seeking_venue, seeking_description=seeking_description)
         db.session.add(artist)
         db.session.commit()
     except:
@@ -375,6 +411,7 @@ def shows():
         obj = {
         "venue_id" : show.venue_id,
         "venue_name" : show.venue.name,
+        "artist_id" : show.artist_id,
         "artist_name": show.artist.name,
         "artist_image_link": show.artist.image_link,
         "start_time" : str(show.start_time)

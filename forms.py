@@ -110,7 +110,7 @@ class VenueForm(Form):
         'phone'
     )
     image_link = StringField(
-        'image_link'
+        'image_link', validators=[URL()]
     )
     genres = SelectMultipleField(
         # TODO implement enum restriction
@@ -120,6 +120,10 @@ class VenueForm(Form):
     facebook_link = StringField(
         'facebook_link', validators=[URL()]
     )
+    website = StringField(
+        'website', validators=[URL()]
+    )
+    
 
 class ArtistForm(Form):
     name = StringField(
@@ -133,11 +137,13 @@ class ArtistForm(Form):
         choices=states_choices
     )
     phone = StringField(
-        # TODO implement validation logic for state
         'phone'
     )
     image_link = StringField(
-        'image_link'
+        'image_link', validators=[URL()]
+    )
+    website = StringField(
+        'website', validators=[URL()]
     )
     genres = SelectMultipleField(
         # TODO implement enum restriction

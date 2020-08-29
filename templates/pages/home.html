@@ -1,9 +1,18 @@
 {% extends 'layouts/main.html' %}
 {% block title %}Fyyur{% endblock %}
 {% block content %}
+{% if form.errors %}
+    <ul class="errors">
+        {% for field_name, field_errors in form.errors|dictsort if field_errors %}
+            {% for error in field_errors %}
+                <li>{{ form[field_name].label }}: {{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+    </ul>
+{% endif %}
 <div class="row">
 	<div class="col-sm-6">
-		<h1>Fyyur 🔥</h1>
+		<h1>Fyyur 🎵🎙️</h1>
 		<p class="lead">Where musical artists meet musical venues.</p>
 		<h3>
 			<a href="/venues"><button class="btn btn-primary btn-lg">Find a venue</button></a>

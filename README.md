@@ -1,5 +1,5 @@
 # 🎵🎙️ Fyyur
-
+[![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/pavponn/fyuur/blob/master/LICENSE)
 
 Fyyur is a musical venue and artist booking site that facilitates the discovery and bookings of shows between local performing artists and venues. This site lets you list new artists and venues, discover them, and list shows with artists as a venue owner.
 

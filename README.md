@@ -1,9 +1,9 @@
-🎵🎙️ Fyyur
------
+# 🎵🎙️ Fyyur
+
 
 Fyyur is a musical venue and artist booking site that facilitates the discovery and bookings of shows between local performing artists and venues. This site lets you list new artists and venues, discover them, and list shows with artists as a venue owner.
 
-### 📋 Overview
+## 📋 Overview
 
 This platform provides following functionality:
 
@@ -13,7 +13,7 @@ This platform provides following functionality:
 * updating the artists/venues data
 
 
-### 🛠 Tech Stack
+## 🛠 Tech Stack
 
 Tech stack includes:
 
@@ -23,7 +23,7 @@ Tech stack includes:
 * **Flask-Migrate** for creating and running schema migrations
 * **HTML**, **CSS**, and **Javascript** with [Bootstrap 3](https://getbootstrap.com/docs/3.4/customize/) for our website's frontend
 
-### ⏱ Quickstart
+## ⏱ Quickstart
 First, [install Flask](http://flask.pocoo.org/docs/1.0/installation/#install-flask) if you haven't already.
 
   ```
